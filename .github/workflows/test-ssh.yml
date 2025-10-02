@@ -1,8 +1,0 @@
-- name: Test SSH connection
-  uses: appleboy/ssh-action@v1.2.0
-  with:
-    host: ${{ secrets.SSH_HOST }}
-    username: ${{ secrets.SSH_USER }}
-    key: ${{ secrets.SSH_PRIVATE_KEY }}
-    port: 22222
-    script: echo "Connexion OK"

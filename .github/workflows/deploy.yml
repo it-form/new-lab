@@ -1,4 +1,4 @@
-name: Deploiement sous Nginx v2
+name: Deploiement sous Nginx v3
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22222 
+          port: 22222
           source: "./"
           target: "/var/www/app"
 
