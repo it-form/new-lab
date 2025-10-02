@@ -1,4 +1,4 @@
-name: Deploiement sous Nginx
+name: Deploiement sous Nginx v2
 
 on:
   push:
