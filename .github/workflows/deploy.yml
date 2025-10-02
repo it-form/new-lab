@@ -1,0 +1,55 @@
+name: Deploiement sous Nginx
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files with SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./"
+          target: "/var/www/mon-app"
+
+      - name: Setup Nginx and restart service
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if ! command -v nginx >/dev/null 2>&1; then
+              sudo apt-get update -y
+              sudo apt-get install -y nginx
+            fi
+
+            sudo mkdir -p /var/www/mon-app
+            sudo chown -R $USER:$USER /var/www/mon-app
+
+            sudo tee /etc/nginx/sites-available/mon-app > /dev/null <<EOF
+            server {
+                listen 80;
+                server_name _;
+                root /var/www/mon-app;
+
+                index index.html;
+                location / {
+                    try_files \$uri \$uri/ =404;
+                }
+            }
+            EOF
+
+            sudo ln -sf /etc/nginx/sites-available/mon-app /etc/nginx/sites-enabled/mon-app
+            sudo nginx -t
+            sudo systemctl restart nginx
